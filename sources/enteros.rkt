@@ -658,16 +658,19 @@
 ;; Resultado test 1   > (1 2)
 ;; TEST 2:            > (test_racionales (primero (segundo matriz_prueba1)))
 ;; Resultado test 2   > (1 5)
-;; TEST 1:            > (test_racionales (segundo (primero matriz_prueba1)))
-;; Resultado test 1   > (1 1)
-;; TEST 2:            > (test_racionales (segundo (segundo matriz_prueba1)))
-;; Resultado test 2   > (-1 1)
+;; TEST 3:            > (test_racionales (segundo (primero matriz_prueba1)))
+;; Resultado test 3   > (1 1)
+;; TEST 4:            > (test_racionales (segundo (segundo matriz_prueba1)))
+;; Resultado test 4   > (-1 1)
 
   (define matriz_prueba1 ((par ((par ((par uno) dos))   ((par uno) uno)))
                                ((par ((par uno) cinco)) ((par -uno) uno))))
 
   (define matriz_prueba2 ((par ((par ((par cinco) dos))   ((par uno) dos)))
                                ((par ((par ocho) -cinco)) ((par -uno) uno))))
+
+  (define matriz_prueba3 ((par ((par ((par uno) uno)) ((par cero) uno)))
+                               ((par ((par uno) uno)) ((par uno) uno))))
 
  ;; test de matrizes racionales
  ;; TEST 1:           > (test_matriz matriz_prueba1)
@@ -722,6 +725,8 @@
 ;; Resultado test 1   > (-7 10)
 ;; TEST 2:            > (test_racionales (determinante matriz_prueba2))
 ;; Resultado test 2   > (-17 10)
+;; TEST 3:            > (test_racionales (determinante matriz_prueba3))
+;; Resultado test 3   > (0 1)
 
   (define determinante
     (lambda (a)
@@ -732,27 +737,101 @@
 ; c2) Decisión sobre inversibilidad y cálculo de inversa y del rango
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Matrizes transpuesta racionale
-;; TEST 1:            > (test_matriz (matriz_transpuesta matriz_prueba1))
-;; Resultado test 1   > (((-1 1) (1 5)) ((1 1) (1 2)))
-;; TEST 2:            > (test_matriz (matriz_transpuesta matriz_prueba2))
-;; Resultado test 2   > (((-1 1) (8 -5)) ((1 2) (5 2)))
+;; Matrizes adjunta racionale
+;; TEST 1:            > (test_matriz (matriz_adjunta matriz_prueba1))
+;; Resultado test 1   > (((-1 1) (-1 1)) ((-1 5) (1 2)))
+;; TEST 2:            > (test_matriz (matriz_adjunta matriz_prueba2))
+;; Resultado test 2   > (((-1 1) (-1 2)) ((8 5) (5 2)))
 
-  (define matriz_transpuesta
+  (define matriz_adjunta
     (lambda (a)
-      ((par ((par (segundo (segundo a))) (segundo (primero a))))  ; Hay que cocegir hacer el negativo de (segundo (primero a))
-            ((par (primero (segundo a))) (primero (primero a))))  ; Hay que cocegir hacer el negativo de (primero (segundo a))
+      ((par ((par (segundo (segundo a))) ((resta_racionales ((par cero) uno)) (primero (segundo a)))))
+            ((par ((resta_racionales ((par cero) uno)) (segundo (primero a)))) (primero (primero a))))
     )
   )
 
-  ;; Condicion de inversivilidad
-  ;; TEST 1:            > (esinversible_matriz matriz_prueba1)
-  ;; Resultado test 1   >
-  ;; TEST 2:            > (esinversible_matriz matriz_prueba2)
-  ;; Resultado test 2   >
+;; Condicion de evaluacion de inversivilidad en matrices racionales.
+;; TEST 1:            > (esinversible_matriz matriz_prueba1)
+;; Resultado test 1   > #<procedure:true>
+;; TEST 2:            > (esinversible_matriz matriz_prueba2)
+;; Resultado test 2   > #<procedure:true>
+;; TEST 3:            > (esinversible_matriz matriz_prueba3)
+;; Resultado test 3   > #<procedure:false>
 
-  (define esinversible_matriz  ; acaba debido a que no hace el negativo.
+  (define esinversible_matriz
     (lambda (a)
-      ((esigual_racional (determinante ((producto_matriz a) (matriz_transpuesta a)))) (determinante ((producto_matriz (matriz_transpuesta a)) a)))
+      ((lambda (det_value)
+        (((noesceroent ((restoent (primero det_value)) (segundo det_value)))
+          (lambda (no_use) true)
+          (lambda (no_use) false)
+        ) zero)
+      ) (determinante a))
+    )
+  )
+
+;; Inversa matriz racional por el metodo de la matriz_adjunta.
+;; TEST 1:            > (test_matriz (matriz_inversa matriz_prueba1))
+;; Resultado test 1   > (((10 7) (2 7)) ((10 7) (-5 7)))
+;; TEST 2:            > (test_matriz (matriz_inversa matriz_prueba2))
+;; Resultado test 2   > (((10 17) (-16 17)) ((5 17) (-25 17)))
+;; TEST 3:            > (matriz_inversa matriz_prueba3)
+;; Resultado test 3   > #<procedure:false>
+
+  (define matriz_inversa
+    (lambda (a)
+      (((esinversible_matriz a)
+          (lambda (det_value)
+            ((lambda (adj_value)
+              ((par ((par ((producto_racionales det_value) (primero (primero adj_value)))) ((producto_racionales det_value) (primero (segundo adj_value)))))
+                    ((par ((producto_racionales det_value) (segundo (primero adj_value)))) ((producto_racionales det_value) (segundo (segundo adj_value)))))
+            ) (matriz_adjunta a))
+          )
+          (lambda (no_use) false)
+      ) (inverso_racionales (determinante a)))
+    )
+  )
+
+;; Rango de la matriz racional
+;; TEST 1:            > (testenteros (rango_matriz matriz_prueba1))
+;; Resultado test 1   > 2
+;; TEST 2:            > (testenteros (rango_matriz matriz_prueba2))
+;; Resultado test 2   > 2
+;; TEST 3:            > (testenteros (rango_matriz matriz_prueba3))
+;; Resultado test 3   > 3
+
+  (define rango_matriz
+    (lambda (a)
+      ((lambda (det_value)
+        (((noesceroent ((restoent (primero det_value)) (segundo det_value)))
+          (lambda (no_use) dos)
+          (lambda (no_use) uno)
+        ) zero)
+      ) (determinante a))
+    )
+  )
+
+; d2) Ptencias de matrices (Algoritmo de exponeciacion binaria).
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; TEST 1:            > (test_matriz ((potencia_matriz matriz_prueba1) deux))
+;; Resultado test 1   > (((9 20) (-1 10)) ((-1 2) (6 5)))
+;; TEST 2:            > (test_matriz ((potencia_matriz matriz_prueba2) trois))
+;; Resultado test 2   >
+
+  (define potencia_matriz
+    (lambda (m)
+      (lambda (n)
+        (((escero n)
+          (lambda (no_use)
+            ((par ((par ((par uno) uno)) ((par cero) uno)))  ; | 1/1  0/1 |
+                  ((par ((par cero) uno)) ((par uno) uno)))  ; | 0/1  1/1 |
+          )
+          (lambda (expt_n)
+            ((producto_matriz m) ((potencia_matriz m) expt_n))
+          )
+        ) (((par? n)
+            (lambda (pot) ((cocientenat pot) deux))  ; Potencias Pares.
+            (lambda (pot) ((restanat pot) un))       ; Potencias Inpares.
+        ) n))
+      )
     )
   )
