@@ -513,9 +513,9 @@
   (define suma_racionales
     (lambda (a)
       (lambda (b)
-          (reducir_racionales
-            ((par ((sument ((prodent (primero a)) (segundo b))) ((prodent (primero b)) (segundo a)))) ((prodent (segundo a)) (segundo b)))
-          )
+        (reducir_racionales
+          ((par ((sument ((prodent (primero a)) (segundo b))) ((prodent (primero b)) (segundo a)))) ((prodent (segundo a)) (segundo b)))
+        )
       )
     )
   )
@@ -529,9 +529,9 @@
   (define resta_racionales
     (lambda (a)
       (lambda (b)
-          (reducir_racionales
-            ((par ((restaent ((prodent (primero a)) (segundo b))) ((prodent (primero b)) (segundo a)))) ((prodent (segundo a)) (segundo b)))
-          )
+        (reducir_racionales
+          ((par ((restaent ((prodent (primero a)) (segundo b))) ((prodent (primero b)) (segundo a)))) ((prodent (segundo a)) (segundo b)))
+        )
       )
     )
   )
@@ -546,7 +546,7 @@
    (lambda (a)
       (lambda (b)
         (reducir_racionales
-            ((par ((prodent (primero a)) (primero b))) ((prodent (segundo a)) (segundo b)))
+          ((par ((prodent (primero a)) (primero b))) ((prodent (segundo a)) (segundo b)))
         )
       )
    )
@@ -671,6 +671,9 @@
 
   (define matriz_prueba3 ((par ((par ((par uno) uno)) ((par cero) uno)))
                                ((par ((par uno) uno)) ((par uno) uno))))
+
+  (define matriz_diagonal ((par ((par ((par uno) uno)) ((par cero) uno)))  ; | 1/1  0/1 |
+                                ((par ((par cero) uno)) ((par uno) uno))))  ; | 0/1  1/1 |
 
  ;; test de matrizes racionales
  ;; TEST 1:           > (test_matriz matriz_prueba1)
@@ -812,26 +815,46 @@
 
 ; d2) Ptencias de matrices (Algoritmo de exponeciacion binaria).
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; TEST 1:            > (test_matriz ((potencia_matriz matriz_prueba1) deux))
+;; TEST 1:            > (test_matriz ((potencia_matriz matriz_prueba1) ((restanat deux) un)))
 ;; Resultado test 1   > (((9 20) (-1 10)) ((-1 2) (6 5)))
-;; TEST 2:            > (test_matriz ((potencia_matriz matriz_prueba2) trois))
-;; Resultado test 2   >
+;; TEST 2:            > (test_matriz ((potencia_matriz matriz_prueba2) ((restanat trois) un)))
+;; Resultado test 2   > (((1 8) (19 100)) ((19 20) (-13 10)))
 
   (define potencia_matriz
     (lambda (m)
       (lambda (n)
-        (((escero n)
-          (lambda (no_use)
-            ((par ((par ((par uno) uno)) ((par cero) uno)))  ; | 1/1  0/1 |
-                  ((par ((par cero) uno)) ((par uno) uno)))  ; | 0/1  1/1 |
-          )
-          (lambda (expt_n)
-            ((producto_matriz m) ((potencia_matriz m) expt_n))
-          )
+        (((par? n)
+          (lambda (mat_t) ((producto_matriz mat_t) m))
+          (lambda (mat_t) mat_t)
+        ) (((escero n)
+          (lambda (no_use) matriz_diagonal)
+          (lambda (expt_n) ((producto_matriz m) ((potencia_matriz m) expt_n)))
         ) (((par? n)
-            (lambda (pot) ((cocientenat pot) deux))  ; Potencias Pares.
-            (lambda (pot) ((restanat pot) un))       ; Potencias Inpares.
-        ) n))
+            (lambda (no_use) ((cocientenat n) deux))  ; Potencias Pares.
+            (lambda (no_use) ((restanat n) un))       ; Potencias Inpares.
+        ) zero)))
       )
+    )
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Aritmetica RACIONALES (Parte 3)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; a3) Sucecion fibonacci n-terminos.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; TEST 1:            > (test_racionales (fibonacci cinq))
+;; Resultado test 1   > (13 1)
+;; TEST 2:            > (test_racionales (fibonacci dix))
+;; Resultado test 2   > (55 1)
+;; TEST 3:            > (test_racionales (fibonacci neuf))
+;; Resultado test 3   > (34 1)
+
+  (define fibonacci
+    (lambda (a)
+      ((lambda (mat_init)
+        (segundo (segundo ((potencia_matriz mat_init) ((restanat a) un))))
+      ) ((par ((par ((par cero) uno)) ((par uno) uno)))
+              ((par ((par uno) uno))  ((par uno) uno))))
     )
   )
