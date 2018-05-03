@@ -1,3 +1,4 @@
+#lang racket
 ; Booleanos. Son los únicos lambda términos no currificados.
 
 (define true (lambda (x y) x))
@@ -800,7 +801,7 @@
 ;; TEST 2:            > (testenteros (rango_matriz matriz_prueba2))
 ;; Resultado test 2   > 2
 ;; TEST 3:            > (testenteros (rango_matriz matriz_prueba3))
-;; Resultado test 3   > 3
+;; Resultado test 3   > 1
 
   (define rango_matriz
     (lambda (a)
