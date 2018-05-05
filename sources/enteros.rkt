@@ -529,9 +529,9 @@
   (define resta_racionales
     (lambda (a)
       (lambda (b)
-        (reducir_racionales
+        ;(reducir_racionales
           ((par ((restaent ((prodent (primero a)) (segundo b))) ((prodent (primero b)) (segundo a)))) ((prodent (segundo a)) (segundo b)))
-        )
+        ;)
       )
     )
   )
@@ -663,17 +663,20 @@
 ;; TEST 4:            > (test_racionales (segundo (segundo matriz_prueba1)))
 ;; Resultado test 4   > (-1 1)
 
-  (define matriz_prueba1 ((par ((par ((par uno) dos))   ((par uno) uno)))
-                               ((par ((par uno) cinco)) ((par -uno) uno))))
+  (define matriz_prueba1 ((par ((par ((par uno) dos))   ((par uno) uno)))     ; | 1/2   1/5 |
+                               ((par ((par uno) cinco)) ((par -uno) uno))))   ; | 1/1  -1/1 |
 
-  (define matriz_prueba2 ((par ((par ((par cinco) dos))   ((par uno) dos)))
-                               ((par ((par ocho) -cinco)) ((par -uno) uno))))
+  (define matriz_prueba2 ((par ((par ((par cinco) dos))   ((par uno) dos)))   ; | 5/2   8/-5 |
+                               ((par ((par ocho) -cinco)) ((par -uno) uno)))) ; | 1/2  -1/1  |
 
-  (define matriz_prueba3 ((par ((par ((par uno) uno)) ((par cero) uno)))
-                               ((par ((par uno) uno)) ((par uno) uno))))
+  (define matriz_prueba3 ((par ((par ((par uno) uno)) ((par cero) uno)))      ; | 1/1  1/1 |
+                               ((par ((par uno) uno)) ((par uno) uno))))      ; | 0/1  1/1 |
 
-  (define matriz_diagonal ((par ((par ((par uno) uno)) ((par cero) uno)))   ; | 1/1  0/1 |
-                                ((par ((par cero) uno)) ((par uno) uno))))  ; | 0/1  1/1 |
+  (define matriz_prueba4 ((par ((par ((par uno) uno)) ((par tres) uno)))      ; | 0/1  2/1 |
+                               ((par ((par dos) uno)) ((par cuatro) uno))))   ; | 3/1  4/1 |
+
+  (define matriz_diagonal ((par ((par ((par uno) uno)) ((par cero) uno)))     ; | 1/1  0/1 |
+                                ((par ((par cero) uno)) ((par uno) uno))))    ; | 0/1  1/1 |
 
  ;; test de matrizes racionales
  ;; TEST 1:           > (test_matriz matriz_prueba1)
@@ -764,7 +767,7 @@
   (define esinversible_matriz
     (lambda (a)
       ((lambda (det_value)
-        (((noesceroent ((restoent (primero det_value)) (segundo det_value)))
+        (((noesceroent (primero det_value)) ;((restoent (primero det_value)) (segundo det_value)))
           (lambda (no_use) true)
           (lambda (no_use) false)
         ) zero)
@@ -800,12 +803,12 @@
 ;; TEST 2:            > (testenteros (rango_matriz matriz_prueba2))
 ;; Resultado test 2   > 2
 ;; TEST 3:            > (testenteros (rango_matriz matriz_prueba3))
-;; Resultado test 3   > 3
+;; Resultado test 3   > 1
 
   (define rango_matriz
     (lambda (a)
       ((lambda (det_value)
-        (((noesceroent ((restoent (primero det_value)) (segundo det_value)))
+        (((noesceroent (primero det_value));((restoent (primero det_value)) (segundo det_value)))
           (lambda (no_use) dos)
           (lambda (no_use) uno)
         ) zero)
@@ -815,22 +818,27 @@
 
 ; d2) Ptencias de matrices (Algoritmo de exponeciacion binaria).
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; TEST 1:            > (test_matriz ((potencia_matriz matriz_prueba1) ((restanat deux) un)))
-;; Resultado test 1   > (((9 20) (-1 10)) ((-1 2) (6 5)))
+;; TEST 1:            > (test_matriz ((potencia_matriz matriz_prueba4) deux))
+;; Resultado test 1   > (((7 1) (10 1)) ((15 1) (22 1)))
+;; TEST 2:            > (test_matriz ((potencia_matriz matriz_prueba4) trois))
+;; Resultado test 2   > (((9 20) (-1 10)) ((-1 2) (6 5)))
 
   (define potencia_matriz
     (lambda (m)
       (lambda (n)
-        (((par? n)
-          (lambda (mat_t) ((producto_matriz mat_t) m))
-          (lambda (mat_t) mat_t)
-        ) (((escero n)
-          (lambda (no_use) matriz_diagonal)
-          (lambda (expt_n) ((producto_matriz m) ((potencia_matriz m) expt_n)))
-        ) (((par? n)
-            (lambda (no_use) ((cocientenat n) deux))  ; Potencias Pares.
-            (lambda (no_use) ((restanat n) un))       ; Potencias Inpares.
-        ) zero)))
+        ((Y (lambda (f)
+          (lambda (y)
+            (((escero y)
+              (lambda (no_use) matriz_diagonal)
+              (lambda (no_use)
+                (((par? y)
+                  (lambda (no_use1) ((lambda (p_val) ((producto_matriz p_val) p_val)) (f ((cocientenat y) deux))))
+                  (lambda (no_use1) ((producto_matriz m) (f (predecesor y))))
+                ) zero)
+              )
+            ) zero) ; Pasa zero como argumento de no_use
+          )
+        )) n)       ; Pasa n como el valor inicial de x.
       )
     )
   )
@@ -851,8 +859,8 @@
   (define fibonacci
     (lambda (a)
       ((lambda (mat_init)
-        (segundo (segundo ((potencia_matriz mat_init) ((restanat a) un))))
-      ) ((par ((par ((par cero) uno)) ((par uno) uno)))
-              ((par ((par uno) uno))  ((par uno) uno))))
+        (primero (segundo ((potencia_matriz mat_init) a)))
+      ) ((par ((par ((par cero) uno)) ((par uno) uno)))     ; | 0/1  1/1 |
+              ((par ((par uno) uno))  ((par uno) uno))))    ; | 1/1  1/1 |
     )
   )
