@@ -850,11 +850,16 @@
 ; a3) Sucecion fibonacci n-terminos.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; TEST 1:            > (test_racionales (fibonacci cinq))
-;; Resultado test 1   > (13 1)
+;; Resultado test 1   > (5 1)
 ;; TEST 2:            > (test_racionales (fibonacci dix))
 ;; Resultado test 2   > (55 1)
 ;; TEST 3:            > (test_racionales (fibonacci neuf))
 ;; Resultado test 3   > (34 1)
+;; TEST 4:            > (test_racionales (fibonacci sept))
+;; Resultado test 2   > (13 1)
+;; TEST 5:            > (test_racionales (fibonacci huit))
+;; Resultado test 5   > (21 1)
+
 
   (define fibonacci
     (lambda (a)
